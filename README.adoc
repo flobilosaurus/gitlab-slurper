@@ -4,7 +4,8 @@
 :icons: font
 = Gitlab Slurper 
 
-image:images/lickitung-hiclipart-com.png[width="150", role="right"] 
+image::images/lickitung-hiclipart-com.png[width="150", align="center"]
+
 Retrieve ci/cd (environment) variables from gitlab projects and groups to your local machine. Variables can be formatted in different ways to ease up usage (e.g. export as environment variables, node dotenv format, terraform tfvars file, ...).
 
 == Installation
