@@ -1,1 +1,2 @@
-python-gitlab
+click==8.0.1
+python-gitlab==2.9.0
