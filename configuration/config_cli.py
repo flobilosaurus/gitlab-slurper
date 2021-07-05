@@ -1,10 +1,10 @@
 import click
 
-from configuration import config_installer
+from configuration import autoconfig
 
 
 @click.group("configuration")
 def configuration():
     pass
 
-configuration.add_command(config_installer.install)
+configuration.add_command(autoconfig.autoconfig)

@@ -1,7 +1,7 @@
 import click
 
 from exporters import ide, shell
-from sources.gitlab.gitlab import fetch_variables
+from sources.gitlab.gitlab_handler import fetch_variables
 
 
 @click.group("gitlab")

@@ -9,3 +9,9 @@ class ProjectNotFoundException(Exception):
 
 class GroupNotFoundException(Exception):
     pass
+
+class ApiCheckFailedException(Exception):
+    pass
+
+class UnsupportedShellException(Exception):
+    pass
