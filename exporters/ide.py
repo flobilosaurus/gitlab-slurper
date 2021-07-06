@@ -10,4 +10,4 @@ from variable import Variable
 def export(variables: List[Variable]):
     """Generates a semicolon separated string."""
     for variable in variables:
-        print(variable.key+ '=' +variable.value + ';', end='')
+        print(variable.key + '=' + variable.value + ';', end='')

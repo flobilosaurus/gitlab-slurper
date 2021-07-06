@@ -30,7 +30,8 @@ def fetch_variables():
 def load_gitlab_config(local_config):
     """Load configuration for the GitLab server"""
     if GITLAB_CONFIG_KEY not in local_config:
-        raise ConfigNotFoundException("No configuration for GitLab found in config file.")
+        raise ConfigNotFoundException(
+            "No configuration for GitLab found in config file.")
     gitlab_config = local_config[GITLAB_CONFIG_KEY]
     gitlab_host = gitlab_config[GITLAB_URL_KEY]
     endpoint = get_endpoint(gitlab_host)
@@ -44,9 +45,11 @@ def get_endpoint(gitlab_host):
     source_configs = [config for config in global_config[SOURCES_CONFIG_KEY][GITLAB_CONFIG_KEY] if
                       config[GITLAB_URL_KEY] == gitlab_host]
     if len(source_configs) < 1:
-        raise ConfigNotFoundException(f"Configuration for host {gitlab_host} not found.")
+        raise ConfigNotFoundException(
+            f"Configuration for host {gitlab_host} not found.")
     if len(source_configs) > 1:
-        raise ConfigInvalidException(f"Multiple configurations for host {gitlab_host} found.")
+        raise ConfigInvalidException(
+            f"Multiple configurations for host {gitlab_host} found.")
     endpoint = source_configs[0]
     return endpoint
 
@@ -54,17 +57,22 @@ def get_endpoint(gitlab_host):
 def load_project_vars(gitlab_config, gitlab_client):
     """Load project variables"""
     if PROJECT_PATH_KEY not in gitlab_config:
-        raise ConfigInvalidException("Nor project path is specified int the configuration file.")
+        raise ConfigInvalidException(
+            "Nor project path is specified int the configuration file.")
     variables = {}
     wanted_project = gitlab_config[PROJECT_PATH_KEY]
     valid_project = find_project(gitlab_client, wanted_project)
     print(f"Loading variables from {valid_project.path_with_namespace}")
     project_env = gitlab_config[PROJECT_ENV_KEY] if PROJECT_ENV_KEY in gitlab_config else '*'
-    has_correct_scope = lambda project: project.environment_scope in ['*', project_env]
-    remote_variables = filter(has_correct_scope, valid_project.variables.list(all=True))
+
+    def has_correct_scope(project):
+        return project.environment_scope in ['*', project_env]
+    remote_variables = filter(
+        has_correct_scope, valid_project.variables.list(all=True))
     for variable in remote_variables:
         variables[variable.key] = \
-            Variable(variable.key, variable.value, {PROJECT_ENV_KEY: project_env})
+            Variable(variable.key, variable.value, {
+                     PROJECT_ENV_KEY: project_env})
     return variables
 
 
@@ -75,7 +83,8 @@ def find_project(gitlab_client, wanted_project):
     matching_projects = [project for project in found_projects
                          if project.path_with_namespace == wanted_project]
     if len(matching_projects) == 0:
-        raise GitProjectNotFoundException(f"Project with path {wanted_project} could not be found.")
+        raise GitProjectNotFoundException(
+            f"Project with path {wanted_project} could not be found.")
     return matching_projects[0]
 
 
@@ -107,8 +116,10 @@ def find_group(gitlab_client, path_elements, wanted_group):
     """Find GitLab group by full path"""
     current_path = "/".join(path_elements)
     found_groups = gitlab_client.groups.list(search=wanted_group, all=True)
-    matching_groups = [group for group in found_groups if group.full_path == current_path]
+    matching_groups = [
+        group for group in found_groups if group.full_path == current_path]
     if len(matching_groups) == 0:
-        raise GitGroupNotFoundException(f"Group with path {wanted_group} could not be found.")
+        raise GitGroupNotFoundException(
+            f"Group with path {wanted_group} could not be found.")
     valid_group = matching_groups[0]
     return valid_group

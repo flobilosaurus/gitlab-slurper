@@ -32,10 +32,12 @@ setup(name='PySlurp',
       packages=['distutils', 'distutils.command'],
       )
 
+
 def install():
     """Creates global config and shell wrapper"""
     create_global_config()
     create_shell_wrapper()
+
 
 def create_global_config():
     """Creates .pyslurp directory in your home directory
@@ -51,10 +53,10 @@ def create_global_config():
     template_path = f"{SCRIPT_DIR}/configuration/templates"
     shell_wrapper_template = load_template(template_path, template_name)
     global_config = shell_wrapper_template.render(
-        sources_config_key = SOURCES_CONFIG_KEY,
-        gitlab_config_key = GITLAB_CONFIG_KEY,
-        gitlab_url_key = GITLAB_URL_KEY,
-        gitlab_token_key = GITLAB_TOKEN_KEY
+        sources_config_key=SOURCES_CONFIG_KEY,
+        gitlab_config_key=GITLAB_CONFIG_KEY,
+        gitlab_url_key=GITLAB_URL_KEY,
+        gitlab_token_key=GITLAB_TOKEN_KEY
     )
 
     with open(configfile, "w") as output:
@@ -66,7 +68,8 @@ def create_shell_wrapper():
     """Creates a shell wrapper for pyslurp"""
     function_signatuire = "pyslurp"
     template_config = get_template_config()
-    wrapper_function = render_wrapper_function(function_signatuire, template_config)
+    wrapper_function = render_wrapper_function(
+        function_signatuire, template_config)
     shell_config_file = f"{USER_DIR}/{template_config['shell_config_file']}"
     if wrapper_already_exists(function_signatuire, shell_config_file):
         return
@@ -89,7 +92,8 @@ def wrapper_already_exists(function_signatuire, shell_config_file):
         if function_signatuire in data:
             print(f"Function starting with signature {function_signatuire} "
                   f"already exists in {shell_config_file}.")
-            print(f"Please review your {shell_config_file} and remove this function.")
+            print(
+                f"Please review your {shell_config_file} and remove this function.")
             return True
         return False
 

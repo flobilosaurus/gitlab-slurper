@@ -12,6 +12,7 @@ def gitlab(ctx: click.Context):
     variables = fetch_variables()
     ctx.obj = variables
 
+
 # Exporter bindings
 gitlab.add_command(ide.export)
 gitlab.add_command(shell.export)

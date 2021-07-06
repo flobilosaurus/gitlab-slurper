@@ -8,4 +8,5 @@ from configuration import autoconfig
 def configuration():
     """PySlurp configuration"""
 
+
 configuration.add_command(autoconfig.autoconfig)

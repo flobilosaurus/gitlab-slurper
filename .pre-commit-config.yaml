@@ -1,4 +1,8 @@
 repos:
+  - repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v1.5.7
+    hooks:
+      -   id: autopep8
   - repo: https://github.com/pycqa/pylint
     rev: v2.9.3
     hooks:

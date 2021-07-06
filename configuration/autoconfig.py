@@ -18,7 +18,8 @@ from exceptions import ConfigInvalidException, ApiCheckFailedException
 
 def add_auth_info(global_config, secure_host):
     """Adds auth data for Git server to global config"""
-    token = click.prompt(f"Please enter a valid GitLab token for host {secure_host}.")
+    token = click.prompt(
+        f"Please enter a valid GitLab token for host {secure_host}.")
     host_config = {
         GITLAB_URL_KEY: secure_host,
         GITLAB_TOKEN_KEY: token
@@ -79,7 +80,8 @@ def add_entry_to_global_config(secure_host):
     if len(source_configs) == 1:
         print(f"Host {secure_host} configured in the global configuration.")
     if len(source_configs) > 1:
-        raise ConfigInvalidException(f"Multiple configurations for host {secure_host} found.")
+        raise ConfigInvalidException(
+            f"Multiple configurations for host {secure_host} found.")
     if len(source_configs) < 1:
         add_auth_info(global_config, secure_host)
     save_global_config(global_config)

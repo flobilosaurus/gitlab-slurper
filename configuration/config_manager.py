@@ -5,6 +5,7 @@ import yaml
 from configuration.keys.global_config import CONFIG_FILE_NAME, GLOBAL_CONFIG_PATH
 from exceptions import ConfigNotFoundException
 
+
 def get_path_to_local_config():
     """Helper: Retrieves path to the pyslurp config file"""
     current_path = os.getcwd()
