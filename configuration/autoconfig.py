@@ -1,3 +1,4 @@
+"""Automatically creates .pyslurp.yml for GitLab from .git dir"""
 import re
 from pathlib import Path
 
@@ -8,12 +9,15 @@ from gitlab import GitlabListError
 from jinja2 import FileSystemLoader
 
 from configuration.config_manager import get_global_config, save_global_config
-from configuration.keys.gitlab import *
+from configuration.keys.gitlab import GITLAB_URL_KEY, GITLAB_TOKEN_KEY,\
+    GITLAB_CONFIG_KEY, PROJECT_PATH_KEY, \
+    PROJECT_ENV_KEY
 from configuration.keys.global_config import SOURCES_CONFIG_KEY, CONFIG_FILE_NAME
 from exceptions import ConfigInvalidException, ApiCheckFailedException
 
 
 def add_auth_info(global_config, secure_host):
+    """Adds auth data for Git server to global config"""
     token = click.prompt(f"Please enter a valid GitLab token for host {secure_host}.")
     host_config = {
         GITLAB_URL_KEY: secure_host,
@@ -22,26 +26,23 @@ def add_auth_info(global_config, secure_host):
     gitlab_client = gitlab.Gitlab(url=secure_host, private_token=token)
     try:
         gitlab_client.projects.list(page=1, per_page=1)
-    except GitlabListError:
+    except GitlabListError as error:
         raise ApiCheckFailedException(f"Error while making a test call to {secure_host}."
-                                      " Check if server has a valid GitLab REST API.")
+                                      " Check if server has a valid GitLab REST API.") from error
     global_config[SOURCES_CONFIG_KEY][GITLAB_CONFIG_KEY].append(host_config)
-
-
-def global_config_has_gitlab_config(global_config):
-    if SOURCES_CONFIG_KEY in global_config:
-        if GITLAB_CONFIG_KEY in global_config[SOURCES_CONFIG_KEY]:
-            return True
-    return False
 
 
 @click.command("autoconfig")
 def autoconfig():
+    """Generates .pyslurp.yaml from .git directory.
+    Must be executed at a GitLab project root
+    """
     secure_host = generate_local_config()
-    generate_global_config(secure_host)
+    add_entry_to_global_config(secure_host)
 
 
 def generate_local_config():
+    """Generates .pyslurp.yaml from Jinja2 template."""
     script_path = Path(__file__).parent
     template_loader = FileSystemLoader(f"{script_path}/templates")
     template_env = jinja2.Environment(loader=template_loader)
@@ -64,20 +65,17 @@ def generate_local_config():
             gitlab_project_path=path,
             gitlab_environment="\'*\'"
         )
-        with open(CONFIG_FILE_NAME, "w") as fh:
-            fh.write(local_config)
+        with open(CONFIG_FILE_NAME, "w") as local_config_file:
+            local_config_file.write(local_config)
     return secure_host
 
 
-def generate_global_config(secure_host):
+def add_entry_to_global_config(secure_host):
+    """Adds auth entry to global config."""
     global_config = get_global_config()
-    source_configs = []
-    if not global_config_has_gitlab_config(global_config):
-        global_config[SOURCES_CONFIG_KEY][GITLAB_CONFIG_KEY] = []
-    else:
-        source_configs = [config for config
-                          in global_config[SOURCES_CONFIG_KEY][GITLAB_CONFIG_KEY]
-                          if config[GITLAB_URL_KEY] == secure_host]
+    source_configs = [config for config
+                      in global_config[SOURCES_CONFIG_KEY][GITLAB_CONFIG_KEY]
+                      if config[GITLAB_URL_KEY] == secure_host]
     if len(source_configs) == 1:
         print(f"Host {secure_host} configured in the global configuration.")
     if len(source_configs) > 1:
@@ -85,5 +83,3 @@ def generate_global_config(secure_host):
     if len(source_configs) < 1:
         add_auth_info(global_config, secure_host)
     save_global_config(global_config)
-
-

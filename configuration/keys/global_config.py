@@ -1,3 +1,5 @@
+"""PySlurp system wide Constants"""
+
 from pathlib import Path
 
 SOURCES_CONFIG_KEY = "sources"

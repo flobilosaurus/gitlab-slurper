@@ -1,3 +1,4 @@
+"""Module for exporting variables in IDE format"""
 from typing import List
 
 import click

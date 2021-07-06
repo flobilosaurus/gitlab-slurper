@@ -1,0 +1,9 @@
+repos:
+  - repo: https://github.com/pycqa/pylint
+    rev: v2.9.3
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: python3 -m pylint.__main__
+        language: system
+        types: [python]

@@ -1,13 +1,15 @@
 """Module loads GitLab variables from Projects and groups"""
+import gitlab as gl
 from configuration.config_manager import get_global_config, get_local_config
-from configuration.keys.gitlab import *
+from configuration.keys.gitlab import GITLAB_ENDPOINT_KEY,\
+    GITLAB_URL_KEY, GITLAB_TOKEN_KEY, GITLAB_CONFIG_KEY, \
+    PROJECT_PATH_KEY, PROJECT_ENV_KEY
 from configuration.keys.global_config import SOURCES_CONFIG_KEY
 from exceptions import ConfigNotFoundException,\
-    ProjectNotFoundException,\
+    GitProjectNotFoundException,\
     ConfigInvalidException,\
-    GroupNotFoundException
+    GitGroupNotFoundException
 from variable import Variable
-import gitlab as gl
 
 
 def fetch_variables():
@@ -73,7 +75,7 @@ def find_project(gitlab_client, wanted_project):
     matching_projects = [project for project in found_projects
                          if project.path_with_namespace == wanted_project]
     if len(matching_projects) == 0:
-        raise ProjectNotFoundException(f"Project with path {wanted_project} could not be found.")
+        raise GitProjectNotFoundException(f"Project with path {wanted_project} could not be found.")
     return matching_projects[0]
 
 
@@ -107,6 +109,6 @@ def find_group(gitlab_client, path_elements, wanted_group):
     found_groups = gitlab_client.groups.list(search=wanted_group, all=True)
     matching_groups = [group for group in found_groups if group.full_path == current_path]
     if len(matching_groups) == 0:
-        raise GroupNotFoundException(f"Group with path {wanted_group} could not be found.")
+        raise GitGroupNotFoundException(f"Group with path {wanted_group} could not be found.")
     valid_group = matching_groups[0]
     return valid_group

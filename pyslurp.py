@@ -8,7 +8,6 @@ import sources.gitlab.cli
 @click.group()
 def cli():
     """CLI to export remote variables to your local environment"""
-    pass
 
 
 cli.add_command(sources.gitlab.cli.gitlab)

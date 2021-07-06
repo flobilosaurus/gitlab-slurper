@@ -1,17 +1,19 @@
+"""PySlurp exceptions"""
+
 class ConfigNotFoundException(Exception):
-    pass
+    """Throw if config file or element is not found"""
 
 class ConfigInvalidException(Exception):
-    pass
+    """Throw if configuration is malformed"""
 
-class ProjectNotFoundException(Exception):
-    pass
+class GitProjectNotFoundException(Exception):
+    """Throw if Git project was not found on remote"""
 
-class GroupNotFoundException(Exception):
-    pass
+class GitGroupNotFoundException(Exception):
+    """Throw if Git group was not found on remote"""
 
 class ApiCheckFailedException(Exception):
-    pass
+    """Throw if expected REST API was not responsive on remote"""
 
 class UnsupportedShellException(Exception):
-    pass
+    """Throw if user shell is not supported by pyslurp"""

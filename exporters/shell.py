@@ -1,3 +1,6 @@
+"""Module for exporting variables into local shell environment.
+Works only with a shell wrapper function (see setup.py)
+"""
 from typing import List
 
 import click
