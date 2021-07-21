@@ -7,16 +7,19 @@ GitLab CI.
 This script will help you to maintain your GitLab repository as a single source of truth for your environment variables.
 It will pull the GitLab variables from the specified repository and its groups and export them to your local environment.
 
+##Supported shells
+ - bash
+ - zhsell
+
 ##Installation
-This script requires an initial installation, which is done from the project root directory. Because of the way processes
-and their environments behave on Linux, a wrapper bash function must be added to your .bashrc file.
+You can install the script by cloning this repo and executing ```pip install -e .```
+from its root. Official PyPi registration is planned in the near future.
+**Because of the nature of child processes on Unix based systems, the application will modify your shell configuration file.**
+More info on why this is needed can be found here:
+https://unix.stackexchange.com/questions/38205/change-environment-of-a-running-process
 
-Run tbe following to trigger the installation.
-```python3 configuration install```
-
-Finish the installation by running ```source .bashrc``` in your local directory.
-
-This operation will also generate a configuration file in ~/.pyslurp/config.yml
+**You have to source your config file after running pip install by executing**
+```source <your-shell-config-file>``` e.g. ```source .bashrc``` from your home directory.
 
 ## Configuration
 ###Global configuration
@@ -25,24 +28,24 @@ in ```~/.pyslurp/config.yml``` an will look as follows:
 ```yaml
 sources:
   gitlab:
-    - name: MyServerAlias
-      url: https://your.gitlab.server.net/
-      token: YourGitLabToken
+    - token: <your-gitlab-token>
+      url: https://your.gitlab.host.url/
 ```
 
 ### Sample local config file
 This configuration file must exist in every directory from which you want to call **pyslurp**
-The name parameter must correspond with the name of a server in the global config. 
+If you have distinct environment setups among your variables, you can specify the environment
+you want in the corresponding field. By default, the "default" environment will be used.
 ```yaml
 gitlab:
-  name: MyServerAlias  #"Name referring to the alias in ~/.pyslurp/config.yml"
-  projects:
-    - path: group1/group2/your-project-name
-      environment: playground
-    - path: another-project-name
-  groups:
-    - a-gitlab-group-name
+  url: https://your.gitlab.host.url/
+  project_path : path/to/your/project
+  environment: '*'
 ```
+For GitLab repositories you can generate this file by running 
+```pyslurp configuration autoconfig```
+If no token configuration is found in the global config for the URL, a prompt for a
+token will appear during configuration creation.
 
 ##Usage
 In order to export the variables to your local environment, execute

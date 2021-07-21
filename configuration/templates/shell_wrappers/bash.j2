@@ -1,5 +1,5 @@
 {{ function_signatuire }} () {
-    python3 {{ script_path }} $*
+    {{ script_path }} $*
     if [[ -f vars ]]; then
         source vars && rm -rf vars
     fi
