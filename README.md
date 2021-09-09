@@ -1,7 +1,7 @@
 # PySlurp
 
 ## Motivation
-The purpuse of this tool is to simplify local development for projecct, that you also store in GitLab.
+The purpose of this tool is to simplify local development for project, that you also store in GitLab.
 Very often you have to deal with a great amount of environment variables which are required for the operations in
 GitLab CI. 
 
@@ -11,7 +11,7 @@ It will pull the GitLab variables from the specified repository and its groups a
 ## Supported shells
 
  - bash
- - zhsell
+ - zshell
 
 ## Installation
 
@@ -28,7 +28,7 @@ https://unix.stackexchange.com/questions/38205/change-environment-of-a-running-p
 
 ### Global configuration
 The global configuration file stores the repository endpoints with the access credentials. It can be found 
-in ```~/.pyslurp/config.yml``` an will look as follows:
+in ```~/.pyslurp/config.yml``` and will look like this:
 ```yaml
 sources:
   gitlab:
