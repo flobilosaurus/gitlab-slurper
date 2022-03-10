@@ -8,11 +8,12 @@ import jinja2
 from gitlab import GitlabListError
 from jinja2 import FileSystemLoader
 
-from configuration.config_manager import get_global_config, save_global_config
-from configuration.keys.gitlab import GITLAB_URL_KEY, GITLAB_TOKEN_KEY,\
+from configuration.config_manager import get_global_config, save_global_config, find_config
+from configuration.keys.gitlab_keys import GITLAB_URL_KEY, GITLAB_TOKEN_KEY,\
     GITLAB_CONFIG_KEY, PROJECT_PATH_KEY, \
     PROJECT_ENV_KEY
-from configuration.keys.global_config import SOURCES_CONFIG_KEY, CONFIG_FILE_NAME
+from configuration.keys.config_keys import SOURCES_CONFIG_KEY, SLURPER_CONFIG_FILE_NAME, \
+    GIT_CONFIG_FILE_NAME
 from exceptions import ConfigInvalidException, ApiCheckFailedException
 
 
@@ -34,24 +35,24 @@ def add_auth_info(global_config, secure_host):
 
 
 @click.command("autoconfig")
-def autoconfig():
+@click.option("-e", "--env", type=str, help="Variable environment")
+def autoconfig(env="\'*\'"):
     """Generates .pyslurp.yaml from .git directory.
     Must be executed at a GitLab project root
     """
-    secure_host = generate_local_config()
+    secure_host = generate_local_config(env)
     add_entry_to_global_config(secure_host)
 
 
-def generate_local_config():
+def generate_local_config(env):
     """Generates .pyslurp.yaml from Jinja2 template."""
     script_path = Path(__file__).parent
     template_loader = FileSystemLoader(f"{script_path}/templates")
     template_env = jinja2.Environment(loader=template_loader)
     local_config_template = template_env.get_template(".pyslurp.j2")
-    with open('.git/config', 'r') as file:
+    with open(find_config(GIT_CONFIG_FILE_NAME), 'r') as file:
         data = file.read().replace('\n', '')
-        pattern = ".*(url = git@)(.*:.*)(.*\\.git)"
-        git_config_uri = re.match(pattern, data)
+        git_config_uri = re.match(".*(url = git@)(.*:.*)(.*\\.git)", data)
         git_uri = git_config_uri[2]
         git_uri_components = git_uri.split(":")
         host = git_uri_components[0]
@@ -64,9 +65,9 @@ def generate_local_config():
             gitlab_environment_key=PROJECT_ENV_KEY,
             gitlab_url=secure_host,
             gitlab_project_path=path,
-            gitlab_environment="\'*\'"
+            gitlab_environment=env
         )
-        with open(CONFIG_FILE_NAME, "w") as local_config_file:
+        with open(SLURPER_CONFIG_FILE_NAME, "w") as local_config_file:
             local_config_file.write(local_config)
     return secure_host
 

@@ -2,19 +2,28 @@
 import os
 import yaml
 
-from configuration.keys.global_config import CONFIG_FILE_NAME, GLOBAL_CONFIG_PATH
+from configuration.keys.config_keys import SLURPER_CONFIG_FILE_NAME, GLOBAL_CONFIG_PATH
 from exceptions import ConfigNotFoundException
 
 
-def get_path_to_local_config():
-    """Helper: Retrieves path to the pyslurp config file"""
+def find_config(config_name):
+    """Returns path to a config with the given name. Searches backwards in the dir hierarchy."""
     current_path = os.getcwd()
     while True:
-        if os.path.isfile(current_path + '/' + CONFIG_FILE_NAME):
-            return current_path + '/' + CONFIG_FILE_NAME
+        if os.path.isfile(current_path + '/' + config_name):
+            return current_path + '/' + config_name
         current_path = os.path.dirname(current_path)
         if current_path == '/':
-            raise ConfigNotFoundException("Configuration file not found.")
+            raise ConfigNotFoundException(
+                f"Configuration '{config_name}' could not be found.")
+
+
+def local_config_exists():
+    """Check if local configuration file exists."""
+    try:
+        return len(find_config(SLURPER_CONFIG_FILE_NAME)) > 0
+    except ConfigNotFoundException:
+        return False
 
 
 def load_yaml(path):
@@ -25,7 +34,7 @@ def load_yaml(path):
 
 def get_local_config():
     """Loads local configuration file (.pyslurp.yaml)"""
-    path = get_path_to_local_config()
+    path = find_config(SLURPER_CONFIG_FILE_NAME)
     return load_yaml(path)
 
 

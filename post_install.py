@@ -8,8 +8,8 @@ import jinja2
 from jinja2 import FileSystemLoader
 
 from configuration.config_manager import GLOBAL_CONFIG_PATH
-from configuration.keys.gitlab import GITLAB_URL_KEY, GITLAB_CONFIG_KEY, GITLAB_TOKEN_KEY
-from configuration.keys.global_config import SOURCES_CONFIG_KEY, GLOBAL_CONFIG_DIR, USER_DIR
+from configuration.keys.gitlab_keys import GITLAB_URL_KEY, GITLAB_CONFIG_KEY, GITLAB_TOKEN_KEY
+from configuration.keys.config_keys import SOURCES_CONFIG_KEY, GLOBAL_CONFIG_DIR, USER_DIR
 from exceptions import UnsupportedShellException
 
 SCRIPT_DIR = str(Path(__file__).parent)

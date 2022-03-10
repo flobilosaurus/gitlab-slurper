@@ -1,13 +1,12 @@
 """Module for exporting variables in IDE format"""
-from typing import List
 
 import click
-from variable import Variable
+from variables.variable_container import VariableContainer
 
 
 @click.command("ide")
 @click.pass_obj
-def export(variables: List[Variable]):
+def export(variables: VariableContainer):
     """Generates a semicolon separated string."""
-    for variable in variables:
+    for variable in variables.get_vars():
         print(variable.key + '=' + variable.value + ';', end='')

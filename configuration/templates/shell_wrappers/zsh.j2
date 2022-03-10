@@ -1,4 +1,4 @@
 {{ function_signatuire }} () {
     {{ script_path }} $*
-    [[ -f ./ vars ]] && source ./vars && rm -f ./vars
+    [[ -f ./vars ]] && source ./vars && rm -f ./vars
 }

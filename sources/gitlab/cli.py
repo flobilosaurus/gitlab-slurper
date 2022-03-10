@@ -1,16 +1,19 @@
 """CLI wrapper for GitLab modules"""
+
 import click
 
 from exporters import ide, shell
 from sources.gitlab.gitlab_handler import fetch_variables
+from variables.variable_container import VariableContainer
 
 
 @click.group("gitlab")
-@click.pass_context
-def gitlab(ctx: click.Context):
+@click.pass_obj
+def gitlab(variables: VariableContainer):
     """Pull variables from GitLab"""
-    variables = fetch_variables()
-    ctx.obj = variables
+    group_vars, project_vars = fetch_variables()
+    variables.add_source(group_vars)
+    variables.add_source(project_vars)
 
 
 # Exporter bindings

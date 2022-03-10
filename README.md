@@ -51,6 +51,27 @@ For GitLab repositories you can generate this file by running
 If no token configuration is found in the global config for the URL, a prompt for a
 token will appear during configuration creation.
 
+### Defaults and overrides
+Both, the global and the local config can contain defaults and overrides for environment variable values
+```yaml
+sources:
+  gitlab:
+    - token: <your-gitlab-token>
+      url: https://your.gitlab.host.url/
+      
+defaults:
+  CI_PROJECT_DIR: inject_script(git rev-parse --show-toplevel)
+  SOME_RANDOM_VAR: the_var_value
+  
+overrides:
+  A_VARIABLE: with_this_default_value
+```
+This feature also supports evaluation and injection of shell commands. Currently, only commands with a output of exactly 
+one line are supported. Defaults and overrides are evaluated by priority: If the value for a variable is found in your
+source, e.g. among the GitLab CI variables, the default value will be abandoned and the GitLab CI variable value will be
+used instead. On the other hand an 'override' value, as the name states, will override any other value.
+
+
 ## Usage
 
 In order to export the variables to your local environment, execute
