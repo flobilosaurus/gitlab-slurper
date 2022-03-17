@@ -5,7 +5,7 @@ from post_install import post_install
 
 
 setup(name='PySlurp',
-      version='0.1',
+      version='0.2',
       description='Python Remote Variable Loader',
       author='MaibornWolff',
       url='https://www.maibornwolff.de',

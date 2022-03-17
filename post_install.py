@@ -22,6 +22,11 @@ supported_shells = {
     "zsh": {
         "template_file": "zsh.j2",
         "shell_config_file": ".zshrc"
+    },
+    "fish": {
+        "template_file": "fish.j2",
+        "function_file_directory": ".config/fish/functions",
+        "function_file_suffix": "fish"
     }
 }
 
@@ -59,38 +64,59 @@ def create_global_config():
 
 def create_shell_wrapper():
     """Creates a shell wrapper for pyslurp"""
-    function_signatuire = "pyslurp"
+    function_name = "pyslurp"
     template_config = get_template_config()
-    wrapper_function = render_wrapper_function(
-        function_signatuire, template_config)
+    if 'shell_config_file' in template_config:
+        _create_shell_wrapper_by_config_entry(function_name, template_config)
+    else:
+        _create_shell_wrapper_by_function_file(function_name, template_config)
+
+def _create_shell_wrapper_by_config_entry(function_name, template_config):
+    wrapper_function = render_wrapper_function(function_name, template_config)
     shell_config_file = f"{USER_DIR}/{template_config['shell_config_file']}"
-    if wrapper_already_exists(function_signatuire, shell_config_file):
+    if wrapper_already_exists(function_name, shell_config_file):
         return
-    add_wrapper_to_shell_config(shell_config_file, wrapper_function)
+    hint = f"Please run:\nsource {shell_config_file}\n"
+    "to register pyslurp in your system environment."
+    add_wrapper_function_to_file(shell_config_file, wrapper_function, hint)
 
+def _create_shell_wrapper_by_function_file(function_name, template_config):
+    wrapper_function = render_wrapper_function(function_name, template_config)
+    function_file_directory = template_config["function_file_directory"]
+    function_file_suffix = template_config["function_file_suffix"]
+    full_function_filename = f'{USER_DIR}/{function_file_directory}/{function_name}.{function_file_suffix}'
+    if function_file_exists(full_function_filename):
+        return
+    add_wrapper_function_to_file(full_function_filename, wrapper_function)
 
-def add_wrapper_to_shell_config(shell_config_file, wrapper_function):
-    """Writes rendered wrapper function to the config file of your shell."""
-    with open(shell_config_file, "a+") as shell_config:
-        shell_config.write("\n")
-        shell_config.write(wrapper_function)
+def add_wrapper_function_to_file(filename, wrapper_function, hint=None):
+    """Writes rendered wrapper function to the given file."""
+    with open(filename, "a+") as f:
+        f.write("\n")
+        f.write(wrapper_function)
     print("Install successful.")
-    print(f"Please run 'source {shell_config_file}' "
-          "to register pyslurp in your system environment.")
+    if hint:
+        print(hint)
 
-
-def wrapper_already_exists(function_signatuire, shell_config_file):
+def wrapper_already_exists(function_name, shell_config_file):
     """Checks if the wrapper function already exists."""
     with open(shell_config_file, "r") as config_file:
         data = config_file.read()
-        if function_signatuire in data:
-            print(f"Function starting with signature {function_signatuire} "
+        if function_name in data:
+            print(f"Function starting with signature {function_name} "
                   f"already exists in {shell_config_file}.")
             print(
                 f"Please review your {shell_config_file} and remove this function.")
             return True
         return False
 
+def function_file_exists(full_function_filename):
+    file_exists = os.path.exists(full_function_filename)
+    if file_exists:
+            print(f"Function file {full_function_filename} already exists."
+                  f"Please remove it first.")
+            return True
+    return False
 
 def get_template_config():
     """Determines the current system shell and loads a corresponding template."""
@@ -103,14 +129,14 @@ def get_template_config():
     return template_config
 
 
-def render_wrapper_function(function_signature, template_config):
+def render_wrapper_function(function_name, template_config):
     """Substitutes variables in the Jinja2 template and generates the wrapper function."""
     script_ref = "_pyslurp"
     template_name = template_config["template_file"]
     template_path = f"{SCRIPT_DIR}/configuration/templates/shell_wrappers"
     shell_wrapper_template = load_template(template_path, template_name)
     wrapper_function = shell_wrapper_template.render(
-        function_signatuire=function_signature,
+        function_name=function_name,
         script_path=script_ref
     )
     return wrapper_function
