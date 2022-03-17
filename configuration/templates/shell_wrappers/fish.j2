@@ -1,0 +1,6 @@
+function {{ function_name }} ()
+    {{ script_path }} $argv
+    if test -e vars
+        source vars && rm vars
+    end
+end

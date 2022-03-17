@@ -12,17 +12,20 @@ It will pull the GitLab variables from the specified repository and its groups a
 
  - bash
  - zshell
+ - fish
 
 ## Installation
 
 You can install the script by cloning this repo and executing ```pip install -e .```
 from its root. Official PyPi registration is planned in the near future.
-**Because of the nature of child processes on Unix based systems, the application will modify your shell configuration file.**
+**Because of the nature of child processes on Unix based systems, the application will modify your shell configuration file or add a function file in case of fish shell.**
 More info on why this is needed can be found here:
 https://unix.stackexchange.com/questions/38205/change-environment-of-a-running-process
 
-**You have to source your config file after running pip install by executing**
+**Bash or zsh users need to source their config file after running pip install by executing**
 ```source <your-shell-config-file>``` e.g. ```source .bashrc``` from your home directory.
+
+**Fish users need to start a new shell instance.**
 
 ## Configuration
 
@@ -77,3 +80,15 @@ used instead. On the other hand an 'override' value, as the name states, will ov
 In order to export the variables to your local environment, execute
 ```pyslurp gitlab shell``` in your terminal.
 If you need semicolon separated values for your IDE instead, execute ```pyslurp gitlab shell```. 
+
+## Uninstall
+
+To remove pyslurp execute:
+
+```pip uninstall pyslurp```
+
+**Bash and zsh users need to remove wrapper function lines from their bash profile**
+
+**Fish users need to remove wrapper function**
+
+```functions -e pyslurp```
