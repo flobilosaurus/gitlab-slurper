@@ -2,7 +2,7 @@
 
 from typing import List
 
-from variables.variable import Variable
+from pyslurp.variables.variable import Variable
 
 
 def _add_to_container(container: dict, variables: dict):

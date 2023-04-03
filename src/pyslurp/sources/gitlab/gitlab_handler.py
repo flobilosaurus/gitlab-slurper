@@ -1,15 +1,15 @@
 """Module loads GitLab variables from Projects and groups"""
 import gitlab as gl
-from configuration.config_manager import get_global_config, get_local_config
-from configuration.keys.gitlab_keys import GITLAB_ENDPOINT_KEY,\
+from pyslurp.configuration.config_manager import get_global_config, get_local_config
+from pyslurp.configuration.keys.gitlab_keys import GITLAB_ENDPOINT_KEY,\
     GITLAB_URL_KEY, GITLAB_TOKEN_KEY, GITLAB_CONFIG_KEY, \
     PROJECT_PATH_KEY, PROJECT_ENV_KEY
-from configuration.keys.config_keys import SOURCES_CONFIG_KEY
-from exceptions import ConfigNotFoundException,\
+from pyslurp.configuration.keys.config_keys import SOURCES_CONFIG_KEY
+from pyslurp.exceptions import ConfigNotFoundException,\
     GitProjectNotFoundException,\
     ConfigInvalidException,\
     GitGroupNotFoundException
-from variables.variable import Variable
+from pyslurp.variables.variable import Variable
 
 
 def fetch_variables():

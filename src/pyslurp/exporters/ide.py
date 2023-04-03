@@ -1,7 +1,7 @@
 """Module for exporting variables in IDE format"""
 
 import click
-from variables.variable_container import VariableContainer
+from pyslurp.variables.variable_container import VariableContainer
 
 
 @click.command("ide")

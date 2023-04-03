@@ -1,9 +1,9 @@
 """Loads variables from defaults and overrides block"""
 import subprocess
 
-from configuration.config_manager import get_global_config, get_local_config
-from configuration.keys.config_keys import DEFAULTS, OVERRIDES, INJECT_SCRIPT
-from variables.variable import Variable
+from pyslurp.configuration.config_manager import get_global_config, get_local_config
+from pyslurp.configuration.keys.config_keys import DEFAULTS, OVERRIDES, INJECT_SCRIPT
+from pyslurp.variables.variable import Variable
 
 
 def get_overrides():
