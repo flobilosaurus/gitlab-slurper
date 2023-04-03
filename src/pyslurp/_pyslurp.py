@@ -1,11 +1,11 @@
 """Main pyslurp CLI wrapper"""
 import click
 
-import configuration.config_cli
-import sources.gitlab.cli
-from configuration.config_manager import local_config_exists
-from sources.config.config_handler import get_defaults, get_overrides
-from variables.variable_container import VariableContainer
+import pyslurp.configuration.config_cli
+import pyslurp.sources.gitlab.cli
+from pyslurp.configuration.config_manager import local_config_exists
+from pyslurp.sources.config.config_handler import get_defaults, get_overrides
+from pyslurp.variables.variable_container import VariableContainer
 
 
 @click.group()
@@ -28,8 +28,8 @@ def _load_variables_from_config():
     return variables
 
 
-cli.add_command(sources.gitlab.cli.gitlab)
-cli.add_command(configuration.config_cli.configuration)
+cli.add_command(pyslurp.sources.gitlab.cli.gitlab)
+cli.add_command(pyslurp.configuration.config_cli.configuration)
 
 if __name__ == '__main__':
     # pylint: disable=E1120

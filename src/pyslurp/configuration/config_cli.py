@@ -1,7 +1,7 @@
 """Configuration CLI wrapper"""
 import click
 
-from configuration import autoconfig
+from pyslurp.configuration import autoconfig, shell_wrapper
 
 
 @click.group("configuration")
@@ -10,3 +10,4 @@ def configuration():
 
 
 configuration.add_command(autoconfig.autoconfig)
+configuration.add_command(shell_wrapper.create_shell_wrapper)

@@ -1,4 +1,5 @@
 """Automatically creates .pyslurp.yml for GitLab from .git dir"""
+import os
 import re
 from pathlib import Path
 
@@ -8,13 +9,16 @@ import jinja2
 from gitlab import GitlabListError
 from jinja2 import FileSystemLoader
 
-from configuration.config_manager import get_global_config, save_global_config, find_config
-from configuration.keys.gitlab_keys import GITLAB_URL_KEY, GITLAB_TOKEN_KEY,\
+from pyslurp.configuration.config_manager import get_global_config, \
+    save_global_config, find_config, load_template
+from pyslurp.configuration.keys.gitlab_keys import GITLAB_URL_KEY, GITLAB_TOKEN_KEY,\
     GITLAB_CONFIG_KEY, PROJECT_PATH_KEY, \
     PROJECT_ENV_KEY
-from configuration.keys.config_keys import SOURCES_CONFIG_KEY, SLURPER_CONFIG_FILE_NAME, \
-    GIT_CONFIG_FILE_NAME
-from exceptions import ConfigInvalidException, ApiCheckFailedException
+from pyslurp.configuration.keys.config_keys import SOURCES_CONFIG_KEY, SLURPER_CONFIG_FILE_NAME, \
+    GIT_CONFIG_FILE_NAME, GLOBAL_CONFIG_PATH, GLOBAL_CONFIG_DIR
+from pyslurp.exceptions import ConfigInvalidException, ApiCheckFailedException
+
+SCRIPT_DIR = str(Path(__file__).parent)
 
 
 def add_auth_info(global_config, secure_host):
@@ -40,17 +44,18 @@ def autoconfig(env="\'*\'"):
     """Generates .pyslurp.yaml from .git directory.
     Must be executed at a GitLab project root
     """
-    secure_host = generate_local_config(env)
-    add_entry_to_global_config(secure_host)
+    _create_global_config()
+    secure_host = _generate_local_config(env)
+    _add_entry_to_global_config(secure_host)
 
 
-def generate_local_config(env):
+def _generate_local_config(env):
     """Generates .pyslurp.yaml from Jinja2 template."""
     script_path = Path(__file__).parent
     template_loader = FileSystemLoader(f"{script_path}/templates")
     template_env = jinja2.Environment(loader=template_loader)
     local_config_template = template_env.get_template(".pyslurp.j2")
-    with open(find_config(GIT_CONFIG_FILE_NAME), 'r') as file:
+    with open(find_config(GIT_CONFIG_FILE_NAME), 'r', encoding="utf-8") as file:
         data = file.read().replace('\n', '')
         git_config_uri = re.match(".*(url = git@)(.*:.*)(.*\\.git)", data)
         git_uri = git_config_uri[2]
@@ -67,12 +72,19 @@ def generate_local_config(env):
             gitlab_project_path=path,
             gitlab_environment=env
         )
-        with open(SLURPER_CONFIG_FILE_NAME, "w") as local_config_file:
+
+        if Path(SLURPER_CONFIG_FILE_NAME).is_file():
+            print(
+                f"Configuration file {SLURPER_CONFIG_FILE_NAME} already exists in {os.getcwd()}")
+            print("You have to delete it first to be able to regenerate it.")
+            print(f"Skipping generation of local {SLURPER_CONFIG_FILE_NAME}")
+            return secure_host
+        with open(SLURPER_CONFIG_FILE_NAME, "w", encoding="utf-8") as local_config_file:
             local_config_file.write(local_config)
     return secure_host
 
 
-def add_entry_to_global_config(secure_host):
+def _add_entry_to_global_config(secure_host):
     """Adds auth entry to global config."""
     global_config = get_global_config()
     source_configs = [config for config
@@ -86,3 +98,26 @@ def add_entry_to_global_config(secure_host):
     if len(source_configs) < 1:
         add_auth_info(global_config, secure_host)
     save_global_config(global_config)
+
+
+def _create_global_config():
+    """Creates .pyslurp directory in your home directory
+    along with an empty global config"""
+    configfile = Path(GLOBAL_CONFIG_PATH)
+    if configfile.is_file():
+        return
+    Path(GLOBAL_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
+    configfile.touch(exist_ok=True)
+    template_name = "global_config.j2"
+    template_path = f"{SCRIPT_DIR}/templates"
+    shell_wrapper_template = load_template(template_path, template_name)
+    global_config = shell_wrapper_template.render(
+        sources_config_key=SOURCES_CONFIG_KEY,
+        gitlab_config_key=GITLAB_CONFIG_KEY,
+        gitlab_url_key=GITLAB_URL_KEY,
+        gitlab_token_key=GITLAB_TOKEN_KEY
+    )
+
+    with open(configfile, "w", encoding="utf-8") as output:
+        output.write(global_config)
+    print(f"Configuration created in {GLOBAL_CONFIG_PATH}")

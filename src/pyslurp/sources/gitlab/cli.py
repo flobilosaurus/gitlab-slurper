@@ -2,9 +2,9 @@
 
 import click
 
-from exporters import ide, shell
-from sources.gitlab.gitlab_handler import fetch_variables
-from variables.variable_container import VariableContainer
+from pyslurp.exporters import dotenv, ide, shell
+from pyslurp.sources.gitlab.gitlab_handler import fetch_variables
+from pyslurp.variables.variable_container import VariableContainer
 
 
 @click.group("gitlab")
@@ -19,3 +19,4 @@ def gitlab(variables: VariableContainer):
 # Exporter bindings
 gitlab.add_command(ide.export)
 gitlab.add_command(shell.export)
+gitlab.add_command(dotenv.export)
