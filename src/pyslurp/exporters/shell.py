@@ -23,6 +23,7 @@ def _has_string_value(variable) -> bool:
 def export(variables: VariableContainer, variable_export_file: str):
     """Saves export statements into a file
     which is interpreted by the wrapper function"""
+    vars_with_dependencies = []
     print(f"Exporting (file: {variable_export_file}) ...")
     with open(variable_export_file, "w", encoding='utf-8') as output:
         for variable in variables.get_vars():
@@ -36,7 +37,13 @@ def export(variables: VariableContainer, variable_export_file: str):
                                        "This variable will be skipped.\n", fg='red'))
             elif _has_string_value(variable) and "'" in variable.value:
                 output.write(f"export '{variable.key}'=\"{variable.value}\"\n")
+            elif _has_string_value(variable) and variable.value.startswith("$"):
+                vars_with_dependencies.append(f"export '{variable.key}'=\"{variable.value}\"\n")
             else:
                 output.write(f"export '{variable.key}'='{variable.value}'\n")
             print(f'{variable.key} ', end='')
+        # Variables that might pull their values from other variables are
+        # evaluated at the very end.
+        for variable in vars_with_dependencies:
+            output.write(variable)
     print("\n\nDone.")
