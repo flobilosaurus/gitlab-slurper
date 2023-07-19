@@ -1,5 +1,6 @@
 """Module loads GitLab variables from Projects and groups"""
 import gitlab as gl
+from gitlab import GitlabListError
 from pyslurp.configuration.config_manager import get_global_config, get_local_config
 from pyslurp.configuration.keys.gitlab_keys import GITLAB_ENDPOINT_KEY,\
     GITLAB_URL_KEY, GITLAB_TOKEN_KEY, GITLAB_CONFIG_KEY, \
@@ -105,8 +106,11 @@ def _load_group_vars(gitlab_config, gitlab_client):
         path_elements.append(wanted_group)
         valid_group = _find_group(gitlab_client, path_elements, wanted_group)
         print(f"Loading variables from {valid_group.full_path}")
-        for variable in valid_group.variables.list(all=True):
-            variables[variable.key] = Variable(variable.key, variable.value)
+        try:
+            for variable in valid_group.variables.list(all=True):
+                variables[variable.key] = Variable(variable.key, variable.value)
+        except GitlabListError as e:
+            print(f"Error while fetching variables from group {valid_group.full_path}: {e.error_message}. Skipping.")
     return variables
 
 
