@@ -59,7 +59,6 @@ def _generate_local_config(env):
         data = file.read().replace('\n', '')
         host = re.search("(?:git@|https?://)([^/:]+)", data).group(1)
         path = re.search("(?:git@[^:]+:|https?://[^/]+/)(.+).git", data).group(1)
-        print(path)
         secure_host = f"https://{host}/"
         local_config = local_config_template.render(
             gitlab_key=GITLAB_CONFIG_KEY,
