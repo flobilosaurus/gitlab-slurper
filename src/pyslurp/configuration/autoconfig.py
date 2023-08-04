@@ -57,12 +57,9 @@ def _generate_local_config(env):
     local_config_template = template_env.get_template(".pyslurp.j2")
     with open(find_config(GIT_CONFIG_FILE_NAME), 'r', encoding="utf-8") as file:
         data = file.read().replace('\n', '')
-        git_config_uri = re.match(".*(url = git@)(.*:.*)(.*\\.git)", data)
-        git_uri = git_config_uri[2]
-        git_uri_components = git_uri.split(":")
-        host = git_uri_components[0]
+        host = re.search("(?:git@|https?://)([^/:]+)", data).group(1)
+        path = re.search("(?:git@[^:]+:|https?://[^/]+/)(.+).git", data).group(1)
         secure_host = f"https://{host}/"
-        path = git_uri_components[1]
         local_config = local_config_template.render(
             gitlab_key=GITLAB_CONFIG_KEY,
             gitlab_url_key=GITLAB_URL_KEY,
