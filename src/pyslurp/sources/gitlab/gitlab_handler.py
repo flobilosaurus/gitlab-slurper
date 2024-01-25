@@ -1,5 +1,6 @@
 """Module loads GitLab variables from Projects and groups"""
 import gitlab as gl
+import re
 from gitlab import GitlabListError
 from pyslurp.configuration.config_manager import get_global_config, get_local_config
 from pyslurp.configuration.keys.gitlab_keys import GITLAB_ENDPOINT_KEY,\
@@ -52,6 +53,11 @@ def _get_endpoint(gitlab_host):
     endpoint = source_configs[0]
     return endpoint
 
+def _add_to_var_dict(var_dict, var_list, project_env):
+    for variable in var_list:
+        var_dict[variable.key] = \
+            Variable(variable.key, variable.value, {
+                        PROJECT_ENV_KEY: project_env})
 
 def _load_project_vars(gitlab_config, gitlab_client):
     """Load project variables"""
@@ -64,14 +70,20 @@ def _load_project_vars(gitlab_config, gitlab_client):
     print(f"Loading variables from {valid_project.path_with_namespace}")
     project_env = gitlab_config[PROJECT_ENV_KEY] if PROJECT_ENV_KEY in gitlab_config else '*'
 
-    def has_correct_scope(project):
-        return project.environment_scope in ['*', project_env]
-    remote_variables = filter(
-        has_correct_scope, valid_project.variables.list(all=True))
-    for variable in remote_variables:
-        variables[variable.key] = \
-            Variable(variable.key, variable.value, {
-                     PROJECT_ENV_KEY: project_env})
+    def has_env_scope(project):
+        return bool(re.search(project_env, str(project.environment_scope), ))
+    def has_global_scope(project):
+        return project.environment_scope == '*'
+    
+    scoped_variables = filter(
+        has_env_scope, valid_project.variables.list(all=True))
+    unscoped_variables = filter(
+        has_global_scope, valid_project.variables.list(all=True))
+    
+
+    _add_to_var_dict(variables, unscoped_variables, project_env)
+    _add_to_var_dict(variables, scoped_variables, project_env)
+        
     return variables
 
 
